@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'question_model.dart'; 
+import 'question_model.dart';
 import '../../core/telegram_web_app.dart';
 
 class QuizScreen extends StatefulWidget {
@@ -46,28 +46,30 @@ class _QuizScreenState extends State<QuizScreen> {
       if (currentQuestionIndex < coffeeQuiz.length - 1) {
         currentQuestionIndex++;
       } else {
-  sendResultToServer(score); // Добавь эту строку
-  _showResultDialog();
-}
-    });
-  }
+  Future<void> sendResultToServer(int finalScore) async {
+  final user = TelegramWebApp.userData;
+  
+  // Твоя новая рабочая ссылка из Render
+  final url = Uri.parse('https://barista-tma.onrender.com/api/quiz/save'); 
 
-  void _showResultDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: const Text("Тест завершен!"),
-        content: Text("Твой результат: $score из ${coffeeQuiz.length}"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Круто!"),
-          ),
-        ],
-      ),
+  try {
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "telegramId": user?['id']?.toString() ?? "00000",
+        "username": user?['first_name'] ?? "Анонимный бариста",
+        "score": finalScore,
+      }),
     );
+
+    if (response.statusCode == 201) {
+      print("✅ Результат успешно сохранен на Render!");
+    }
+  } catch (e) {
+    print("❌ Ошибка отправки на бэкенд: $e");
   }
+}
 
   @override
   Widget build(BuildContext context) {
