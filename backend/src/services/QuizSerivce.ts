@@ -1,6 +1,6 @@
 // backend/src/services/quizService.ts
 
-export const canTakeDailyQuiz = async (user: User): Promise<boolean> => {
+export const canTakeDailyQuiz = async (user: any): Promise<boolean> => {
   if (!user.lastQuizDate) return true; // Никогда не проходил
 
   const today = new Date();
